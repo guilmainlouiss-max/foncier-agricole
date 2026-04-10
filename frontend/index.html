@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Foncier Agricole Urbain — Diagnostic Préventif</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Cal+Sans&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0a0b;
+  --surface: #111113;
+  --surface2: #1a1a1f;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.12);
+  --text: #f0f0f2;
+  --muted: #71717a;
+  --accent: #22c55e;
+  --accent-dim: rgba(34,197,94,0.12);
+  --accent-border: rgba(34,197,94,0.3);
+  --font: 'Inter', sans-serif;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 15px;
+  line-height: 1.6;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── NOISE OVERLAY */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── GLOW */
+.glow {
+  position: fixed;
+  width: 600px; height: 600px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(34,197,94,0.06) 0%, transparent 70%);
+  top: -100px; left: -100px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── NAV */
+nav {
+  position: fixed; top: 0; left: 0; right: 0;
+  height: 60px;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 40px;
+  background: rgba(10,10,11,0.8);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  z-index: 100;
+}
+.nav-logo {
+  font-size: 15px; font-weight: 600; color: var(--text);
+  display: flex; align-items: center; gap: 8px;
+  letter-spacing: -0.02em;
+}
+.nav-logo-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 8px rgba(34,197,94,0.6);
+}
+.nav-links {
+  display: flex; align-items: center; gap: 24px;
+  font-size: 13px; color: var(--muted);
+}
+.nav-links a { color: var(--muted); text-decoration: none; transition: color 0.15s; }
+.nav-links a:hover { color: var(--text); }
+.nav-badge {
+  font-size: 11px; padding: 3px 10px; border-radius: 20px;
+  background: var(--accent-dim); color: var(--accent);
+  border: 1px solid var(--accent-border);
+  font-weight: 500;
+}
+
+/* ── HERO */
+.hero {
+  position: relative; z-index: 1;
+  min-height: 100vh;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 100px 24px 80px;
+  text-align: center;
+}
+
+.hero-label {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-size: 12px; font-weight: 500; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--accent);
+  border: 1px solid var(--accent-border);
+  background: var(--accent-dim);
+  padding: 5px 14px; border-radius: 20px;
+  margin-bottom: 32px;
+  animation: fadeUp 0.6s ease both;
+}
+
+.hero-title {
+  font-size: clamp(36px, 6vw, 72px);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  margin-bottom: 24px;
+  animation: fadeUp 0.6s ease 0.1s both;
+}
+.hero-title .accent { color: var(--accent); }
+.hero-title .dim { color: var(--muted); }
+
+.hero-sub {
+  font-size: clamp(15px, 2vw, 18px);
+  color: var(--muted);
+  max-width: 540px;
+  margin: 0 auto 48px;
+  line-height: 1.7;
+  animation: fadeUp 0.6s ease 0.2s both;
+}
+
+.hero-actions {
+  display: flex; align-items: center; gap: 12px;
+  animation: fadeUp 0.6s ease 0.3s both;
+  flex-wrap: wrap; justify-content: center;
+}
+
+.btn-primary {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 12px 28px;
+  background: var(--accent);
+  color: #0a0a0b;
+  font-size: 14px; font-weight: 600;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: all 0.15s;
+  border: none; cursor: pointer;
+}
+.btn-primary:hover {
+  background: #16a34a;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 24px rgba(34,197,94,0.25);
+}
+
+.btn-secondary {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 12px 24px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 14px; font-weight: 500;
+  border-radius: 8px;
+  text-decoration: none;
+  border: 1px solid var(--border2);
+  transition: all 0.15s;
+}
+.btn-secondary:hover { color: var(--text); border-color: rgba(255,255,255,0.2); }
+
+/* ── PREVIEW */
+.hero-preview {
+  margin-top: 64px;
+  width: 100%; max-width: 900px;
+  border-radius: 12px;
+  border: 1px solid var(--border2);
+  overflow: hidden;
+  box-shadow: 0 32px 80px rgba(0,0,0,0.5);
+  animation: fadeUp 0.8s ease 0.4s both;
+  background: var(--surface);
+}
+.preview-bar {
+  display: flex; align-items: center; gap: 8px;
+  padding: 12px 16px;
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+}
+.preview-dot { width: 10px; height: 10px; border-radius: 50%; }
+.preview-content {
+  display: grid; grid-template-columns: 280px 1fr;
+  height: 340px;
+}
+.preview-sidebar {
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  padding: 16px;
+}
+.preview-map {
+  background: linear-gradient(135deg, #0f1923 0%, #0a1520 50%, #111820 100%);
+  position: relative; overflow: hidden;
+}
+.preview-map::after {
+  content: '';
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(circle at 40% 50%, rgba(34,197,94,0.08) 0%, transparent 60%),
+    radial-gradient(circle at 70% 30%, rgba(96,165,250,0.06) 0%, transparent 40%);
+}
+.preview-pill {
+  display: inline-block; font-size: 9px; padding: 2px 8px;
+  border-radius: 20px; margin-bottom: 6px;
+  background: var(--accent-dim); color: var(--accent);
+  border: 1px solid var(--accent-border);
+}
+.preview-title { font-size: 11px; font-weight: 600; margin-bottom: 4px; }
+.preview-sub { font-size: 9px; color: var(--muted); margin-bottom: 12px; }
+.preview-card {
+  background: var(--surface2); border-radius: 6px;
+  border: 1px solid var(--border); padding: 8px 10px;
+  margin-bottom: 6px;
+}
+.preview-card-row {
+  display: flex; justify-content: space-between; align-items: center;
+  font-size: 9px;
+}
+.preview-card-label { color: var(--muted); }
+.preview-card-val { font-weight: 600; font-size: 10px; }
+.preview-bar-item {
+  height: 3px; border-radius: 2px; margin-top: 4px;
+  background: linear-gradient(90deg, var(--accent), transparent);
+}
+
+/* ── FEATURES */
+.features {
+  position: relative; z-index: 1;
+  padding: 100px 24px;
+  max-width: 1100px; margin: 0 auto;
+}
+.features-label {
+  font-size: 12px; font-weight: 500; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--accent);
+  margin-bottom: 16px;
+}
+.features-title {
+  font-size: clamp(28px, 4vw, 42px);
+  font-weight: 600; letter-spacing: -0.02em;
+  margin-bottom: 16px;
+}
+.features-sub { font-size: 16px; color: var(--muted); max-width: 480px; margin-bottom: 64px; }
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1px;
+  background: var(--border);
+  border-radius: 12px; overflow: hidden;
+  border: 1px solid var(--border);
+}
+.feature-item {
+  background: var(--surface);
+  padding: 32px;
+  transition: background 0.15s;
+}
+.feature-item:hover { background: var(--surface2); }
+.feature-icon {
+  width: 40px; height: 40px; border-radius: 10px;
+  background: var(--accent-dim); border: 1px solid var(--accent-border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; margin-bottom: 16px;
+}
+.feature-title { font-size: 15px; font-weight: 600; margin-bottom: 8px; }
+.feature-desc { font-size: 13px; color: var(--muted); line-height: 1.6; }
+
+/* ── SOURCES */
+.sources {
+  position: relative; z-index: 1;
+  padding: 80px 24px;
+  border-top: 1px solid var(--border);
+  text-align: center;
+}
+.sources-title { font-size: 13px; color: var(--muted); margin-bottom: 32px; letter-spacing: 0.05em; text-transform: uppercase; }
+.sources-grid {
+  display: flex; flex-wrap: wrap; justify-content: center; gap: 12px;
+  max-width: 800px; margin: 0 auto;
+}
+.source-chip {
+  font-size: 12px; padding: 6px 14px;
+  border-radius: 20px; border: 1px solid var(--border2);
+  color: var(--muted); background: var(--surface);
+}
+
+/* ── CTA */
+.cta {
+  position: relative; z-index: 1;
+  padding: 100px 24px;
+  text-align: center;
+  border-top: 1px solid var(--border);
+}
+.cta-title {
+  font-size: clamp(28px, 4vw, 48px);
+  font-weight: 600; letter-spacing: -0.02em;
+  margin-bottom: 16px;
+}
+.cta-sub { font-size: 16px; color: var(--muted); margin-bottom: 40px; }
+
+/* ── FOOTER */
+footer {
+  position: relative; z-index: 1;
+  padding: 24px 40px;
+  border-top: 1px solid var(--border);
+  display: flex; justify-content: space-between; align-items: center;
+  font-size: 12px; color: var(--muted);
+}
+
+/* ── ANIMATIONS */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+</style>
+</head>
+<body>
+
+<div class="glow"></div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">
+    <div class="nav-logo-dot"></div>
+    Foncier Agricole Urbain
+  </div>
+  <div class="nav-links">
+    <a href="#fonctionnalites">Fonctionnalités</a>
+    <a href="#sources">Sources</a>
+    <span class="nav-badge">Beta</span>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-label">
+    <span>●</span> Outil de diagnostic préventif
+  </div>
+  <h1 class="hero-title">
+    Évaluez la viabilité<br>
+    <span class="accent">de vos projets</span><br>
+    <span class="dim">agricoles urbains</span>
+  </h1>
+  <p class="hero-sub">
+    Croisez pollution des sols, ensoleillement, réseaux de chaleur, zonage PLU et prix foncier — en un clic, sans payer d'études préliminaires.
+  </p>
+  <div class="hero-actions">
+    <a href="app.html" class="btn-primary">
+      Accéder à l'outil →
+    </a>
+    <a href="#fonctionnalites" class="btn-secondary">
+      En savoir plus
+    </a>
+  </div>
+
+  <!-- Preview simulée -->
+  <div class="hero-preview">
+    <div class="preview-bar">
+      <div class="preview-dot" style="background:#ff5f56"></div>
+      <div class="preview-dot" style="background:#ffbd2e"></div>
+      <div class="preview-dot" style="background:#27c93f"></div>
+      <div style="flex:1;text-align:center;font-size:11px;color:#555">localhost:3000 — Foncier Agricole Urbain</div>
+    </div>
+    <div class="preview-content">
+      <div class="preview-sidebar">
+        <div style="margin-bottom:12px">
+          <div style="height:28px;background:#1a1a1f;border-radius:5px;border:1px solid rgba(255,255,255,0.07)"></div>
+        </div>
+        <div class="preview-pill">Recommandations</div>
+        <div class="preview-title">12 Rue de Rivoli, Paris</div>
+        <div class="preview-sub">48.85500°N, 2.34800°E</div>
+        <div class="preview-card">
+          <div class="preview-card-row">
+            <span class="preview-card-label">🏗️ Toiture / rooftop</span>
+            <span class="preview-card-val" style="color:#22c55e">Recommandé</span>
+          </div>
+          <div class="preview-bar-item" style="width:82%"></div>
+        </div>
+        <div class="preview-card">
+          <div class="preview-card-row">
+            <span class="preview-card-label">📦 Culture en bac</span>
+            <span class="preview-card-val" style="color:#22c55e">Recommandé</span>
+          </div>
+          <div class="preview-bar-item" style="width:74%"></div>
+        </div>
+        <div class="preview-card">
+          <div class="preview-card-row">
+            <span class="preview-card-label">🌿 Serre chauffée</span>
+            <span class="preview-card-val" style="color:#fbbf24">Envisageable</span>
+          </div>
+          <div class="preview-bar-item" style="width:58%;background:linear-gradient(90deg,#fbbf24,transparent)"></div>
+        </div>
+        <div style="margin-top:10px;font-size:9px;color:#555">
+          ● Pollution · ● Ensoleillement · ● PLU · ● Foncier
+        </div>
+      </div>
+      <div class="preview-map">
+        <!-- Carte simulée avec SVG -->
+        <svg width="100%" height="100%" viewBox="0 0 620 340" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0">
+          <!-- Rues simulées -->
+          <line x1="0" y1="170" x2="620" y2="170" stroke="rgba(255,255,255,0.06)" stroke-width="8"/>
+          <line x1="310" y1="0" x2="310" y2="340" stroke="rgba(255,255,255,0.06)" stroke-width="6"/>
+          <line x1="0" y1="100" x2="620" y2="130" stroke="rgba(255,255,255,0.04)" stroke-width="4"/>
+          <line x1="0" y1="240" x2="620" y2="220" stroke="rgba(255,255,255,0.04)" stroke-width="4"/>
+          <line x1="150" y1="0" x2="180" y2="340" stroke="rgba(255,255,255,0.03)" stroke-width="3"/>
+          <line x1="440" y1="0" x2="460" y2="340" stroke="rgba(255,255,255,0.03)" stroke-width="3"/>
+          <!-- Zone pollution -->
+          <circle cx="200" cy="120" r="50" fill="rgba(167,139,250,0.12)" stroke="rgba(167,139,250,0.3)" stroke-width="1" stroke-dasharray="4,3"/>
+          <circle cx="200" cy="120" r="5" fill="#a78bfa"/>
+          <!-- Réseau chaleur -->
+          <path d="M 100 200 Q 250 190 400 210 Q 500 220 580 200" fill="none" stroke="rgba(96,165,250,0.5)" stroke-width="2.5"/>
+          <circle cx="100" cy="200" r="5" fill="#60a5fa"/>
+          <circle cx="400" cy="210" r="5" fill="#60a5fa"/>
+          <!-- Marqueur cliqué -->
+          <circle cx="310" cy="170" r="10" fill="rgba(34,197,94,0.2)" stroke="#22c55e" stroke-width="1.5"/>
+          <circle cx="310" cy="170" r="4" fill="#22c55e"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="features" id="fonctionnalites">
+  <div class="features-label">Fonctionnalités</div>
+  <h2 class="features-title">Tout ce dont vous avez besoin<br>pour décider en confiance</h2>
+  <p class="features-sub">Six sources de données publiques agrégées automatiquement, sans abonnement ni expertise SIG.</p>
+
+  <div class="features-grid">
+    <div class="feature-item">
+      <div class="feature-icon">🌱</div>
+      <div class="feature-title">Recommandation par type de projet</div>
+      <div class="feature-desc">Plein sol, bac hors-sol, toiture, serre ou façade — chaque projet est évalué selon des critères pondérés spécifiques à sa nature.</div>
+    </div>
+    <div class="feature-item">
+      <div class="feature-icon">⚠️</div>
+      <div class="feature-title">Diagnostic pollution des sols</div>
+      <div class="feature-desc">Croisement avec la base SSP/CASIAS de Géorisques. La pollution est bloquante ou non selon le type de polluant et le projet envisagé.</div>
+    </div>
+    <div class="feature-item">
+      <div class="feature-icon">☀️</div>
+      <div class="feature-title">Ensoleillement réel</div>
+      <div class="feature-desc">Irradiation annuelle en kWh/m²/an calculée par PVGIS (JRC / Commission Européenne) pour chaque point du territoire.</div>
+    </div>
+    <div class="feature-item">
+      <div class="feature-icon">🔥</div>
+      <div class="feature-title">Réseaux de chaleur</div>
+      <div class="feature-desc">Proximité des réseaux de chaleur urbains (SNCU/CEREMA) — critique pour les projets en serre chauffée.</div>
+    </div>
+    <div class="feature-item">
+      <div class="feature-icon">📋</div>
+      <div class="feature-title">Zonage PLU avec lien direct</div>
+      <div class="feature-desc">Type de zone PLU de la parcelle via l'API Carto IGN, avec lien direct vers le règlement complet sur le Géoportail Urbanisme.</div>
+    </div>
+    <div class="feature-item">
+      <div class="feature-icon">💶</div>
+      <div class="feature-title">Prix foncier contextualisé</div>
+      <div class="feature-desc">Prix médian au m² issu des données DVF (DGFiP), comparé à la médiane du marché local pour une interprétation relative.</div>
+    </div>
+  </div>
+</section>
+
+<!-- SOURCES -->
+<section class="sources" id="sources">
+  <div class="sources-title">Données publiques utilisées</div>
+  <div class="sources-grid">
+    <div class="source-chip">Géorisques / SSP CASIAS</div>
+    <div class="source-chip">PVGIS v5.2 — JRC / Commission Européenne</div>
+    <div class="source-chip">SNCU / CEREMA — data.gouv.fr</div>
+    <div class="source-chip">API Carto IGN — Géoportail Urbanisme</div>
+    <div class="source-chip">Open-Meteo Archive</div>
+    <div class="source-chip">DVF — DGFiP (2022–2025)</div>
+    <div class="source-chip">API Adresse — adresse.data.gouv.fr</div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta">
+  <h2 class="cta-title">Prêt à diagnostiquer<br>votre premier site ?</h2>
+  <p class="cta-sub">Gratuit, sans inscription, basé sur des données publiques françaises.</p>
+  <a href="app.html" class="btn-primary" style="font-size:15px;padding:14px 36px">
+    Accéder à l'outil →
+  </a>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div>Foncier Agricole Urbain — Prototype v2 · 2026</div>
+  <div style="display:flex;align-items:center;gap:20px">
+    <span>Données publiques françaises · Diagnostic indicatif</span>
+    <a href="methodologie_foncier_agricole.docx" download style="color:var(--muted);font-size:11px;text-decoration:none;border:1px solid rgba(255,255,255,0.1);padding:3px 10px;border-radius:4px;transition:all 0.15s" onmouseover="this.style.color='var(--text)';this.style.borderColor='rgba(255,255,255,0.2)'" onmouseout="this.style.color='var(--muted)';this.style.borderColor='rgba(255,255,255,0.1)'">↓ Note méthodologique</a>
+  </div>
+</footer>
+
+</body>
+</html>
