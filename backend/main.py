@@ -15,7 +15,10 @@ app = FastAPI(title="Foncier Agricole Urbain API", version="2.0.0")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[
+        "https://fanciful-peony-47e4e2.netlify.app",
+        "http://localhost:3000",
+    ],
     allow_methods=["GET", "POST", "OPTIONS"],
     allow_headers=["*"],
 )
